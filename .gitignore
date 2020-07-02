@@ -1,1 +1,9 @@
 /**/*images
+
+!Data/
+
+Data/*
+!Data/Processed-images/
+
+Data/Processed-images/*
+!Data/Processed-images/FaithfulBlocks
