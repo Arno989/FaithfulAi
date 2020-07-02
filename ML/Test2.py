@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 
 # %%
 PROJECT_ROOT = os.path.dirname(os.path.abspath("./"))
-images_Processed_F = f"{PROJECT_ROOT}\\Data\\Processed-images\\FaithfulBlocks"
-images_Processed_V = f"{PROJECT_ROOT}\\Data\\Processed-images\\VanillaBlocks"
+images_Processed_F = f"{PROJECT_ROOT}/Data/Processed-images/FaithfulBlocks"  # f"{PROJECT_ROOT}\\Data\\Processed-images\\FaithfulBlocks"
+images_Processed_V = f"{PROJECT_ROOT}/Data/Processed-images/VanillaBlocks"  # f"{PROJECT_ROOT}\\Data\\Processed-images\\VanillaBlocks"
 
 channels = 3
 image_index = 500
