@@ -178,12 +178,12 @@ plt.imshow(image_alphas[image_index])
 
 
 # %%
-tf.config.run_functions_eagerly(True)
+# tf.config.run_functions_eagerly(True)
 
 
 # %%
 auto_encoder.fit(
-    downized_images,
+    downsized_images,
     real_images,
     epochs=5,
     batch_size=10,
@@ -193,7 +193,7 @@ auto_encoder.fit(
 
 
 # %%
-sr1 = auto_encoder.predict(downized_images)
+sr1 = auto_encoder.predict(downsized_images)
 sr1[::3] = image_alphas[::3]
 
 
@@ -201,10 +201,10 @@ sr1[::3] = image_alphas[::3]
 plt.figure(figsize=(256, 256))
 
 ax = plt.subplot(10, 10, 1)
-plt.imshow(downized_images[image_index])
+plt.imshow(downsized_images[image_index])
 
 ax = plt.subplot(10, 10, 2)
-plt.imshow(downized_images[image_index], interpolation="bicubic")
+plt.imshow(downsized_images[image_index], interpolation="bicubic")
 
 # ax = plt.subplot(10, 10, i)
 # plt.imshow(encoded_imgs[image_index].reshape((64*64, 256)))
