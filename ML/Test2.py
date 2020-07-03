@@ -140,9 +140,13 @@ def get_training_data():
                 real_image_alphas.append(reshaped_image[:, :, 3])
 
             elif channels == 3:
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA) 
                 reshaped_image = cv2.resize(image, (256, 256))
-
+                real_image_alphas.append(reshaped_image[:, :, 3])
+                
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
+                reshaped_image = cv2.resize(image, (256, 256))
+                
             real_image_treat_as_y.append(reshaped_image)
 
             image = cv2.resize(image, (100, 100))
