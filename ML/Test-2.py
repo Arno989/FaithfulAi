@@ -2,7 +2,9 @@
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
 import tensorflow as tf
+from tensorflow import keras
 import urllib
+import platform
 import numpy as np
 import cv2
 import os
@@ -11,9 +13,21 @@ import matplotlib.pyplot as plt
 
 
 # %%
+opSys = platform.system()
+
 PROJECT_ROOT = os.path.dirname(os.path.abspath("./"))
-images_Processed_F = f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/FaithfulBlocks"  # f"{PROJECT_ROOT}\\Data\\Processed-images\\FaithfulBlocks"
-images_Processed_V = f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/VanillaBlocks"  # f"{PROJECT_ROOT}\\Data\\Processed-images\\VanillaBlocks"
+print(PROJECT_ROOT)
+
+if opSys == "Windows":
+    images_Processed_F = f"{PROJECT_ROOT}\\Data\\Processed-images\\FaithfulBlocks"
+    images_Processed_V = f"{PROJECT_ROOT}\\Data\\Processed-images\\VanillaBlocks"
+elif opSys == "Linux":
+    images_Processed_F = (
+        f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/FaithfulBlocks"
+    )
+    images_Processed_V = (
+        f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/VanillaBlocks"
+    )
 
 channels = 3
 image_index = 500
@@ -140,13 +154,13 @@ def get_training_data():
                 real_image_alphas.append(reshaped_image[:, :, 3])
 
             elif channels == 3:
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA) 
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
                 reshaped_image = cv2.resize(image, (256, 256))
                 real_image_alphas.append(reshaped_image[:, :, 3])
-                
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 
+
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 reshaped_image = cv2.resize(image, (256, 256))
-                
+
             real_image_treat_as_y.append(reshaped_image)
 
             image = cv2.resize(image, (100, 100))
@@ -194,6 +208,7 @@ auto_encoder.fit(
 
 # %%
 sr1 = auto_encoder.predict(downsized_images)
+sr1 = cv2.cvtColor(sr1, cv2.COLOR_BGR2BGRA)
 sr1[::3] = image_alphas[::3]
 
 
@@ -218,5 +233,5 @@ plt.imshow(sr1[image_index])
 ax = plt.subplot(10, 10, 4)
 plt.imshow(real_images[image_index])
 
-plt.show()
+plt.savefig("./")
 
