@@ -211,7 +211,7 @@ auto_encoder.fit(
 sr1 = auto_encoder.predict(downsized_images)
 sr1 = cv2.cvtColor(sr1, cv2.COLOR_BGR2BGRA)
 
-rgba[:, :, 3] = image_alphas
+sr1[:, :, 3] = image_alphas
 # sr1 = cv2.merge((sr1, image_alphas))
 
 
