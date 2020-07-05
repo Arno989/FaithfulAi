@@ -199,17 +199,20 @@ plt.imshow(image_alphas[image_index])
 auto_encoder.fit(
     downsized_images,
     real_images,
-    epochs=5,
-    batch_size=10,
+    epochs=1,
+    batch_size=32,
     shuffle=True,
     validation_split=0.15,
 )
+# auto_encoder.fit(downsized_images, real_images, epochs=5, batch_size=32, shuffle=True, validation_split=0.15)
 
 
 # %%
 sr1 = auto_encoder.predict(downsized_images)
 sr1 = cv2.cvtColor(sr1, cv2.COLOR_BGR2BGRA)
-sr1[::3] = image_alphas[::3]
+
+rgba[:, :, 3] = image_alphas
+# sr1 = cv2.merge((sr1, image_alphas))
 
 
 # %%
