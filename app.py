@@ -11,7 +11,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath("./"))
 print(PROJECT_ROOT)
 
 try:
-    exec(open("Test-2.py").read())
+    exec(open("./ML/Test-2.py").read())
     # while True:
     #     try:
     #         pass
