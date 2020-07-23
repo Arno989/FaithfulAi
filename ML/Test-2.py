@@ -21,7 +21,6 @@ opSys = platform.system()
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath("./"))
 print(PROJECT_ROOT)
-print(cwd)
 
 if opSys == "Windows":
     images_Processed_F = f"{PROJECT_ROOT}\\Data\\Processed-images\\FaithfulBlocks"
