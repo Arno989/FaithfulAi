@@ -1,12 +1,15 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
+# %% [markdown]
+# ## Package requirements
+# pip install -r requirements.txt
+
 # %%
 import tensorflow as tf
 from tensorflow import keras
 import urllib
 import platform
 import numpy as np
-from unipath import Path
 import cv2
 import os
 import matplotlib
@@ -16,12 +19,16 @@ import matplotlib.pyplot as plt
 # %%
 opSys = platform.system()
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = Path(PROJECT_ROOT).parent
+PROJECT_ROOT = os.path.dirname(os.path.abspath("./"))
+print(PROJECT_ROOT)
+print(cwd)
 
 if opSys == "Windows":
     images_Processed_F = f"{PROJECT_ROOT}\\Data\\Processed-images\\FaithfulBlocks"
     images_Processed_V = f"{PROJECT_ROOT}\\Data\\Processed-images\\VanillaBlocks"
+    checkpoint_path = (
+        f"{PROJECT_ROOT}\\ML\\Checkpoints\\training_test_2\\cp-{epoch:04d}.ckpt"
+    )
 elif opSys == "Linux":
     images_Processed_F = (
         f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/FaithfulBlocks"
@@ -29,113 +36,130 @@ elif opSys == "Linux":
     images_Processed_V = (
         f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/VanillaBlocks"
     )
+    checkpoint_path = (
+        f"{PROJECT_ROOT}/ML/Checkpoints/training_test_2/cp-{epoch:04d}.ckpt"
+    )
+
+cp_callback = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_path, verbose=1, save_weights_only=True, period=5
+)
 
 channels = 3
 image_index = 500
 
 
 # %%
-input_img = tf.keras.layers.Input(shape=(256, 256, channels))
+def create_model():
 
-l1 = tf.keras.layers.Conv2D(
-    64,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(input_img)
-l2 = tf.keras.layers.Conv2D(
-    64,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l1)
-l3 = tf.keras.layers.MaxPool2D(padding="same")(l2)
+    input_img = tf.keras.layers.Input(shape=(256, 256, channels))
 
-l4 = tf.keras.layers.Conv2D(
-    128,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l3)
-l5 = tf.keras.layers.Conv2D(
-    128,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l4)
-l6 = tf.keras.layers.MaxPool2D(padding="same")(l5)
+    l1 = tf.keras.layers.Conv2D(
+        64,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(input_img)
+    l2 = tf.keras.layers.Conv2D(
+        64,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l1)
+    l3 = tf.keras.layers.MaxPool2D(padding="same")(l2)
 
-l7 = tf.keras.layers.Conv2D(
-    256,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l6)
+    l4 = tf.keras.layers.Conv2D(
+        128,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l3)
+    l5 = tf.keras.layers.Conv2D(
+        128,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l4)
+    l6 = tf.keras.layers.MaxPool2D(padding="same")(l5)
 
-l8 = tf.keras.layers.UpSampling2D()(l7)
-l9 = tf.keras.layers.Conv2D(
-    128,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l8)
-l10 = tf.keras.layers.Conv2D(
-    128,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l9)
+    l7 = tf.keras.layers.Conv2D(
+        256,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l6)
 
-l11 = tf.keras.layers.add([l10, l5])
+    l8 = tf.keras.layers.UpSampling2D()(l7)
+    l9 = tf.keras.layers.Conv2D(
+        128,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l8)
+    l10 = tf.keras.layers.Conv2D(
+        128,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l9)
 
-l12 = tf.keras.layers.UpSampling2D()(l11)
-l13 = tf.keras.layers.Conv2D(
-    64,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l12)
-l14 = tf.keras.layers.Conv2D(
-    64,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l13)
+    l11 = tf.keras.layers.add([l10, l5])
 
-l15 = tf.keras.layers.add([l14, l2])
+    l12 = tf.keras.layers.UpSampling2D()(l11)
+    l13 = tf.keras.layers.Conv2D(
+        64,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l12)
+    l14 = tf.keras.layers.Conv2D(
+        64,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l13)
 
-decoded_image = tf.keras.layers.Conv2D(
-    channels,
-    (3, 3),
-    padding="same",
-    kernel_initializer="he_uniform",
-    activation="relu",
-    activity_regularizer=tf.keras.regularizers.l1(10e-10),
-)(l15)
+    l15 = tf.keras.layers.add([l14, l2])
 
-auto_encoder = tf.keras.models.Model(inputs=(input_img), outputs=decoded_image)
+    decoded_image = tf.keras.layers.Conv2D(
+        channels,
+        (3, 3),
+        padding="same",
+        kernel_initializer="he_uniform",
+        activation="relu",
+        activity_regularizer=tf.keras.regularizers.l1(10e-10),
+    )(l15)
+
+    auto_encoder = tf.keras.models.Model(inputs=(input_img), outputs=decoded_image)
+
+    return auto_encoder
+
+
+model = create_model()
+model.save_weights(checkpoint_path.format(epoch=0))
+
+model.summary()
 
 
 # %%
-auto_encoder.compile(optimizer="adadelta", loss="mean_squared_error")
+model.compile(optimizer="adadelta", loss="mean_squared_error")
 
 
 # %%
@@ -197,19 +221,21 @@ plt.imshow(image_alphas[image_index])
 
 
 # %%
-auto_encoder.fit(
+model.fit(
     downsized_images,
     real_images,
     epochs=1,
     batch_size=32,
     shuffle=True,
     validation_split=0.15,
+    callbacks=[cp_callback],
 )
+model.save("my_model")
 # auto_encoder.fit(downsized_images, real_images, epochs=5, batch_size=32, shuffle=True, validation_split=0.15)
 
 
 # %%
-sr1 = auto_encoder.predict(downsized_images)
+sr1 = model.predict(downsized_images)
 sr1 = cv2.cvtColor(sr1, cv2.COLOR_BGR2BGRA)
 
 sr1[:, :, 3] = image_alphas
