@@ -26,7 +26,7 @@ if opSys == "Windows":
     images_Processed_F = f"{PROJECT_ROOT}\\Data\\Processed-images\\FaithfulBlocks"
     images_Processed_V = f"{PROJECT_ROOT}\\Data\\Processed-images\\VanillaBlocks"
     checkpoint_path = (
-        f"{PROJECT_ROOT}\\ML\\Checkpoints\\training_test_2\\cp-{epoch:04d}.ckpt"
+        f"{PROJECT_ROOT}\\ML\\Checkpoints\\training_test_2\\cp.ckpt"
     )
 elif opSys == "Linux":
     images_Processed_F = (
@@ -36,7 +36,7 @@ elif opSys == "Linux":
         f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/VanillaBlocks"
     )
     checkpoint_path = (
-        f"{PROJECT_ROOT}/ML/Checkpoints/training_test_2/cp-{epoch:04d}.ckpt"
+        f"{PROJECT_ROOT}/ML/Checkpoints/training_test_2/cp.ckpt"
     )
 
 cp_callback = tf.keras.callbacks.ModelCheckpoint(
