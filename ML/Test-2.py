@@ -6,6 +6,7 @@ from tensorflow import keras
 import urllib
 import platform
 import numpy as np
+from unipath import Path
 import cv2
 import os
 import matplotlib
@@ -15,8 +16,8 @@ import matplotlib.pyplot as plt
 # %%
 opSys = platform.system()
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath("./"))
-print(PROJECT_ROOT)
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = Path(PROJECT_ROOT).parent
 
 if opSys == "Windows":
     images_Processed_F = f"{PROJECT_ROOT}\\Data\\Processed-images\\FaithfulBlocks"
