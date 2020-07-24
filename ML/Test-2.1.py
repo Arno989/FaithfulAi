@@ -75,18 +75,15 @@ def get_training_data():
 
     for img in os.listdir(images_Processed_F):
         try:
-            image = cv2.cvtColor(cv2.imread(f"{images_Processed_F}/{img}", cv2.IMREAD_UNCHANGED), cv2.COLOR_BGR2BGRA)
+            image = cv2.imread(f"{images_Processed_F}/{img}", cv2.IMREAD_UNCHANGED)
+            
             resized_image = cv2.resize(image, (256, 256))
             downscaled_image = cv2.resize(cv2.resize(resized_image, (100, 100)), (256, 256))
+            images_alphas.append(resized_image[:, :, 3])
 
-            if channels == 3:
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-            resized_image = cv2.resize(image, (256, 256))
 
             feature_images.append(cv2.resize(image, (256, 256)))
             target_images.append(resized_image)
-            images_alphas.append(resized_image[:, :, 3])
 
         except Exception as e:
             print(e)
