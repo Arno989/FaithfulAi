@@ -24,7 +24,7 @@ elif opSys == "Linux":
     checkpoint_path = f"{PROJECT_ROOT}/ML/Checkpoints/training_test_2.2"
 
 # checkpoint callback
-cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(checkpoint_path, f"cp-{epoch:02d}.ckpt"), verbose=1, save_weights_only=True, period=5)
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(checkpoint_path, f"cp.ckpt"), verbose=1, save_weights_only=True, period=5) # -{epoch:02d}
 
 # color channels RGB(a)  (3 or 4)
 res = (32, 32)
