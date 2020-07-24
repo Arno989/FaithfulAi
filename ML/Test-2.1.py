@@ -29,7 +29,7 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(checkpoin
 # color channels RGB(a)  (3 or 4)
 res = (32, 32)
 channels = 3
-image_index = 500  # test image to view
+image_index = 200  # test image to view
 l2_alpha = 10e-10
 
 # conv == size of convolution window
@@ -76,28 +76,30 @@ def get_training_data():
     for img in os.listdir(images_Processed_F):
         try:
             image = cv2.imread(f"{images_Processed_F}/{img}", cv2.IMREAD_UNCHANGED)
-            
-            resized_image = cv2.resize(image, (256, 256))
-            downscaled_image = cv2.resize(cv2.resize(resized_image, (100, 100)), (256, 256))
-            images_alphas.append(resized_image[:, :, 3])
+            downscaled_image = cv2.resize(cv2.resize(image, (16, 16)), (32, 32))
 
+            try:
+                images_alphas.append(image[:, :, 3])
+            except:
+                images_alphas.append(np.zeros((32, 32, 3)))
+                print("Err avoidance: img has no transparency layer")
 
-            feature_images.append(cv2.resize(image, (256, 256)))
-            target_images.append(resized_image)
+            feature_images.append(downscaled_image)
+            target_images.append(cv2.resize(image, (32, 32)))
 
         except Exception as e:
-            print(e)
+            print(f"Exception!: {e}, image not appended")
 
     return (
-        np.array(feature_images),
+        np.array(feature_images, dtype=object, ndmin=3),
         np.array(target_images),
-        np.array(images_alphas),
+        np.array(images_alphas)
     )
 
 
 downsized_images, real_images, image_alphas = get_training_data()
 
-
+print(downsized_images[1])
 print(downsized_images.shape)
 print(real_images.shape)
 print(image_alphas.shape)
