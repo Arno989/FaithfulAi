@@ -21,10 +21,10 @@ if opSys == "Windows":
 elif opSys == "Linux":
     images_Processed_F = f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/FaithfulBlocks"
     images_Processed_V = f"{PROJECT_ROOT}/FaithfulAi/Data/Processed-images/VanillaBlocks"
-    checkpoint_path = f"{PROJECT_ROOT}/ML/Checkpoints/training_test_2.2"
+    checkpoint_path = f"{PROJECT_ROOT}/FaithfulAi/ML/Checkpoints/training_test_2.2"
 
 # checkpoint callback
-cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(checkpoint_path, f"cp.ckpt"), verbose=1, save_weights_only=True, period=5) # -{epoch:02d}
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(checkpoint_path, f"cp.ckpt"), verbose=1, save_weights_only=True, save_freq=5) # -{epoch:02d}
 
 # color channels RGB(a)  (3 or 4)
 res = (32, 32)
@@ -72,41 +72,53 @@ def get_training_data():
     feature_images = []
     target_images = []
     images_alphas = []
+    unapended = 0
 
     for img in os.listdir(images_Processed_F):
         try:
             image = cv2.imread(f"{images_Processed_F}/{img}", cv2.IMREAD_UNCHANGED)
-            downscaled_image = cv2.resize(cv2.resize(image, (16, 16)), (32, 32))
+            downscaled_image = cv2.resize(image, (16, 16))
 
             try:
-                images_alphas.append(image[:, :, 3])
+                images_alphas.append(cv2.resize(image[:, :, 3], (32, 32)))
             except:
-                images_alphas.append(np.zeros((32, 32, 3)))
-                print("Err avoidance: img has no transparency layer")
+                b_channel, g_channel, r_channel = cv2.split(image)
+                a_channel = np.ones(b_channel.shape, dtype=b_channel.dtype) #* 50 #creating a dummy alpha channel image.
+                # image = cv2.merge((b_channel, g_channel, r_channel, a_channel))
+                images_alphas.append(cv2.resize(a_channel, (32, 32)))
 
-            feature_images.append(downscaled_image)
-            target_images.append(cv2.resize(image, (32, 32)))
+            
+            feature_images.append(cv2.cvtColor(cv2.resize(downscaled_image, (32, 32)), cv2.COLOR_BGRA2BGR))
+            target_images.append(cv2.cvtColor(cv2.resize(image, (32, 32)), cv2.COLOR_BGRA2BGR))
+
+            # if image.shape == (32, 32, 4):
+            #     feature_images.append(downscaled_image)
+            #     target_images.append(cv2.resize(image, (32, 32)))
+            # else:
+            #     unapended += 1
+            #     print(f"image {img.replace('faithful_', '').replace('.png', '')}: not (32, 32, 4) but {image.shape}, not appended")
 
         except Exception as e:
-            print(f"Exception!: {e}, image not appended")
+            unapended += 1
+            print(f"Exception!: image {img.replace('faithful_', '').replace('.png', '')}: {e}, not appended")
+
+    print(f"{unapended} of {len(os.listdir(images_Processed_F))} images not used")
 
     return (
-        np.array(feature_images, dtype=object, ndmin=3),
-        np.array(target_images),
-        np.array(images_alphas)
+        np.array(feature_images, dtype=object),
+        np.array(target_images, dtype=object),
+        np.array(images_alphas, dtype=object)
     )
 
 
 downsized_images, real_images, image_alphas = get_training_data()
 
-print(downsized_images[1])
 print(downsized_images.shape)
 print(real_images.shape)
 print(image_alphas.shape)
-plt.imshow(image_alphas[image_index])
 
 
-model.fit(downsized_images, real_images, epochs=1, batch_size=32, shuffle=True, validation_split=0.15, callbacks=[cp_callback])
+model.fit(np.asarray(downsized_images[:20]), np.asarray(real_images[:20]), epochs=1, batch_size=32, shuffle=True, validation_split=0.15, callbacks=[cp_callback])
 # model.fit(downsized_images, real_images, epochs=5, batch_size=32, shuffle=True, validation_split=0.15, callbacks=[cp_callback])
 
 model.save("my_model")
