@@ -32,6 +32,8 @@ for img_part in [images_V, images_F]:
                 print(f"Copied: {src_dir}  to  {dst_dir}")
             except Exception as e:
                 print(e)
+                
+subprocess.run("find . -type f -iname '*.png' -exec pngcrush -ow -rem allb -reduce {} \;", shell=True, check=True, text=True)
 
 
 
